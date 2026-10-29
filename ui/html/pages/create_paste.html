@@ -1,0 +1,36 @@
+{{define "title"}}ساخت یادداشت{{end}}
+
+{{define "main"}}
+<h1>ساخت یادداشت</h1>
+<form class="card" id="createForm" method="post" action="/paste/create">
+  <label for="title">عنوان</label>
+  <input id="title" name="title" placeholder="بدون عنوان">
+
+  <label for="body">متن یادداشت</label>
+  <textarea id="body" name="body" dir="auto" placeholder="متن یا کدت را اینجا بنویس…" required></textarea>
+
+  <div class="two">
+    <div>
+      <label for="lang">قالب</label>
+      <select id="lang" name="lang">
+        <option value="text">متن ساده</option>
+        <option value="js">JavaScript</option>
+        <option value="kotlin">Kotlin</option>
+        <option value="go">Go</option>
+        <option value="sql">SQL</option>
+      </select>
+    </div>
+    <div>
+      <label for="exp">انقضا</label>
+      <select id="exp" name="expires">
+        <option value="never">هرگز</option>
+        <option value="1h">یک ساعت</option>
+        <option value="1d">یک روز</option>
+        <option value="7d">یک هفته</option>
+      </select>
+    </div>
+  </div>
+
+  <button class="btn primary submit" type="submit">ساخت یادداشت</button>
+</form>
+{{end}}

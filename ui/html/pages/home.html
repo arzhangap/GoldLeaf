@@ -1,0 +1,39 @@
+{{define "title"}}خانه{{end}}
+
+{{define "main"}}
+<div class="hero">
+  <section>
+    <h1>یادداشتت را بنویس، با یک کد به اشتراک بگذار</h1>
+    <p class="lead">متن یا کد خودت را بنویس، یک کد کوتاه بگیر و برای هر کسی که می‌خواهی بفرست. نیازی به ساخت حساب کاربری نیست.</p>
+    <div class="actions">
+      <a class="btn primary" href="/paste/create">ساخت یادداشت</a>
+      <button class="btn ghost" id="openBtn" type="button">باز کردن یادداشت</button>
+    </div>
+    <ol class="steps">
+      <li><b>۱</b><span><strong>بنویس.</strong>متن یا کدت را در کادر بگذار.</span></li>
+      <li><b>۲</b><span><strong>کد بگیر.</strong>یک کد شش‌حرفی برای یادداشتت ساخته می‌شود.</span></li>
+      <li><b>۳</b><span><strong>بفرست.</strong>هر کسی با این کد یادداشت را باز می‌کند.</span></li>
+    </ol>
+  </section>
+
+  <aside class="ticket" aria-label="نمونه‌ی کد اشتراک">
+    <small>کد اشتراک یادداشت</small>
+    <div class="code">K7M2QX</div>
+    <hr>
+    <p>با همین کد، یادداشت روی هر دستگاهی باز می‌شود.</p>
+  </aside>
+</div>
+
+<dialog id="codeDialog" aria-labelledby="dTitle">
+  <form id="codeForm" novalidate>
+    <h2 id="dTitle">باز کردن یادداشت</h2>
+    <p>کد اشتراک یادداشت را وارد کن.</p>
+    <input id="codeIn" maxlength="6" placeholder="K7M2QX" aria-label="کد اشتراک" autocomplete="off" spellcheck="false">
+    <div class="err" id="codeErr" role="alert"></div>
+    <div class="actions">
+      <button class="btn primary" type="submit">باز کن</button>
+      <button class="btn ghost" type="button" id="cancelBtn">انصراف</button>
+    </div>
+  </form>
+</dialog>
+{{end}}
