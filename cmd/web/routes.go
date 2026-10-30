@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
+	"goldleaf.ari.github.com/ui"
 )
 
 func (app *application) routes() http.Handler {
@@ -13,8 +14,8 @@ func (app *application) routes() http.Handler {
 		app.notFound(writer)
 	})
 
-	fileServer := http.FileServer(http.Dir("./ui/static/"))
-	router.Handler(http.MethodGet, "/static/*filepath", http.StripPrefix("/static/", fileServer))
+	fileServer := http.FileServer(http.FS(ui.File))
+	router.Handler(http.MethodGet, "/static/*filepath", fileServer)
 
 	router.Handler(http.MethodGet, "/", http.HandlerFunc(app.home))
 	router.Handler(http.MethodGet, "/paste/create", http.HandlerFunc(app.createPaste))
