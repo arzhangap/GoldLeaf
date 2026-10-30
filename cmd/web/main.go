@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -10,15 +11,18 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	"goldleaf.ari.github.com/internal/models"
 )
 
 type application struct {
+	db            *sql.DB
 	errorLog      *log.Logger
 	infoLog       *log.Logger
 	templateCache map[string]*template.Template
 }
 
 func main() {
+	fmt.Println(models.GenerateCode())
 	addr := flag.String("addr", ":4000", "HTTP network address")
 	dsn := flag.String("dsn", "goland:pass@/goldleaf?parseTime=true", "MySQL data source name")
 
@@ -43,6 +47,7 @@ func main() {
 	app := application{
 		infoLog:       logInfo,
 		errorLog:      logErr,
+		db:            db,
 		templateCache: templateCache,
 	}
 
