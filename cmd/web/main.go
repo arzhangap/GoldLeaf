@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -63,5 +64,11 @@ func openDB(dsn string) (*sql.DB, error) {
 	if err = db.Ping(); err != nil {
 		return nil, err
 	}
+
+	db.SetMaxOpenConns(5)
+	db.SetMaxIdleConns(5)
+	db.SetConnMaxLifetime(5 * time.Minute)
+	db.SetConnMaxIdleTime(3 * time.Minute)
+
 	return db, err
 }
