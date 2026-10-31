@@ -3,7 +3,10 @@ package models
 import (
 	"crypto/rand"
 	"database/sql"
+	"errors"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
@@ -30,8 +33,35 @@ func (m *PasteModel) Insert(title string, body string, password string, expires 
 	return "", nil
 }
 
-func (m *PasteModel) Read(code string) ([]*Paste, error) {
-	return nil, nil
+func (m *PasteModel) Read(code string, password string) (*Paste, error) {
+
+	stmt := "SELECT title, body, password_hash FROM pastes WHERE (expires IS NULL OR expires > UTC_TIMESTAMP()) AND code = ?"
+
+	p := &Paste{}
+	err := m.DB.QueryRow(stmt, code).Scan(&p.Title, &p.Body, &p.PasswordHash)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrNoRecord
+		}
+		return nil, err
+	}
+
+	if p.PasswordHash.Valid {
+		if password != "" {
+			return nil, ErrPasswordRequired
+		}
+		err := bcrypt.CompareHashAndPassword([]byte(p.PasswordHash.String), []byte(password))
+		if err != nil {
+			if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+				return nil, ErrInvalidCredentials
+			}
+			return nil, err
+		}
+	}
+
+	p.PasswordHash = sql.NullString{}
+	p.Code = "AAAAAA"
+	return p, nil
 }
 
 func GenerateCode() (string, error) {
