@@ -8,7 +8,7 @@ import (
 )
 
 func (app *application) notFound(w http.ResponseWriter) {
-
+	app.render(w, http.StatusNotFound, "not_found.html", nil)
 }
 
 func (app *application) clientError(w http.ResponseWriter, status int) {

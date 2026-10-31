@@ -21,7 +21,6 @@ func (app *application) createPaste(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) pasteView(w http.ResponseWriter, r *http.Request) {
-
 	params := httprouter.ParamsFromContext(r.Context())
 	code := strings.ToUpper(params.ByName("code"))
 
@@ -42,5 +41,34 @@ func (app *application) pasteView(w http.ResponseWriter, r *http.Request) {
 		data.Paste = p
 		app.render(w, http.StatusOK, "read_paste.html", data)
 	}
+}
 
+func (app *application) pasteViewPost(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	code := r.PostForm.Get("code")
+
+	//params := httprouter.ParamsFromContext(r.Context())
+	//code := strings.ToUpper(params.ByName("code"))
+
+	if len(code) != 6 {
+		app.notFound(w)
+		return
+	}
+
+	p, err := app.pastes.Read(code, "")
+	switch {
+	case errors.Is(err, models.ErrNoRecord):
+		app.notFound(w)
+	case errors.Is(err, models.ErrPasswordRequired):
+	case err != nil:
+		app.serverError(w, err)
+	default:
+		data := app.newTemplateData(r)
+		data.Paste = p
+		app.render(w, http.StatusOK, "read_paste.html", data)
+	}
 }
