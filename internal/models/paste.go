@@ -5,15 +5,13 @@ import (
 	"database/sql"
 	"errors"
 	"time"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 
 type PasteModelInterface interface {
 	Insert(title string, body string, password string, expires time.Time) (string, error)
-	Read(code string) (*Paste, error)
+	Read(code, password string) (*Paste, error)
 }
 
 type Paste struct {
@@ -35,10 +33,10 @@ func (m *PasteModel) Insert(title string, body string, password string, expires 
 
 func (m *PasteModel) Read(code string, password string) (*Paste, error) {
 
-	stmt := "SELECT title, body, password_hash FROM pastes WHERE (expires IS NULL OR expires > UTC_TIMESTAMP()) AND code = ?"
+	stmt := "SELECT title, body, password_hash, created FROM pastes WHERE (expires IS NULL OR expires > UTC_TIMESTAMP()) AND code = ?"
 
 	p := &Paste{}
-	err := m.DB.QueryRow(stmt, code).Scan(&p.Title, &p.Body, &p.PasswordHash)
+	err := m.DB.QueryRow(stmt, code).Scan(&p.Title, &p.Body, &p.PasswordHash, &p.Created)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, ErrNoRecord
@@ -46,18 +44,19 @@ func (m *PasteModel) Read(code string, password string) (*Paste, error) {
 		return nil, err
 	}
 
-	if p.PasswordHash.Valid {
-		if password != "" {
-			return nil, ErrPasswordRequired
-		}
-		err := bcrypt.CompareHashAndPassword([]byte(p.PasswordHash.String), []byte(password))
-		if err != nil {
-			if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
-				return nil, ErrInvalidCredentials
-			}
-			return nil, err
-		}
-	}
+	// TODO password protected
+	//if p.PasswordHash.Valid {
+	//	if password != "" {
+	//		return nil, ErrPasswordRequired
+	//	}
+	//	err := bcrypt.CompareHashAndPassword([]byte(p.PasswordHash.String), []byte(password))
+	//	if err != nil {
+	//		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+	//			return nil, ErrInvalidCredentials
+	//		}
+	//		return nil, err
+	//	}
+	//}
 
 	p.PasswordHash = sql.NullString{}
 	p.Code = "AAAAAA"

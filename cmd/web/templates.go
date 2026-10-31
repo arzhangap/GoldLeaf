@@ -3,9 +3,13 @@ package main
 import (
 	"html/template"
 	"path/filepath"
+
+	"goldleaf.ari.github.com/internal/models"
 )
 
 type templateData struct {
+	CurrentYear int
+	Paste       *models.Paste
 }
 
 func newTemplateCache() (map[string]*template.Template, error) {

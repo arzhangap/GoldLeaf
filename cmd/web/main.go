@@ -18,6 +18,7 @@ type application struct {
 	db            *sql.DB
 	errorLog      *log.Logger
 	infoLog       *log.Logger
+	pastes        models.PasteModelInterface
 	templateCache map[string]*template.Template
 }
 
@@ -48,6 +49,7 @@ func main() {
 		infoLog:       logInfo,
 		errorLog:      logErr,
 		db:            db,
+		pastes:        &models.PasteModel{DB: db},
 		templateCache: templateCache,
 	}
 
