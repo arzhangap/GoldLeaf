@@ -20,8 +20,9 @@ func (app *application) routes() http.Handler {
 
 	router.Handler(http.MethodGet, "/", http.HandlerFunc(app.home))
 	router.Handler(http.MethodGet, "/paste/create", http.HandlerFunc(app.createPaste))
+	router.Handler(http.MethodPost, "/paste/create", http.HandlerFunc(app.createPastePost))
 
-	router.Handler(http.MethodGet, "/paste/view", http.HandlerFunc(app.pasteView))
+	router.Handler(http.MethodGet, "/paste/view/:code", http.HandlerFunc(app.pasteView))
 	router.Handler(http.MethodPost, "/paste/view", http.HandlerFunc(app.pasteViewPost))
 
 	return router

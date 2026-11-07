@@ -7,10 +7,25 @@ import (
 	"time"
 )
 
+var expiryOptions = map[string]time.Duration{
+	"1h": time.Hour,
+	"1d": 24 * time.Hour,
+	"7d": 7 * 24 * time.Hour,
+}
+
 const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 
+func parseExpires(value string) (*time.Time, bool) {
+	d, ok := expiryOptions[value]
+	if !ok {
+		return nil, false
+	}
+	t := time.Now().UTC().Add(d)
+	return &t, true
+}
+
 type PasteModelInterface interface {
-	Insert(title string, body string, password string, expires time.Time) (string, error)
+	Insert(title string, body string, password string, expires string) (string, error)
 	Read(code, password string) (*Paste, error)
 }
 
@@ -27,8 +42,24 @@ type PasteModel struct {
 	DB *sql.DB
 }
 
-func (m *PasteModel) Insert(title string, body string, password string, expires time.Time) (string, error) {
-	return "", nil
+func (m *PasteModel) Insert(title string, body string, password string, expires string) (string, error) {
+	code, err := GenerateCode()
+	if err != nil {
+		return "", err
+	}
+	parsedExpiry, ok := parseExpires(expires)
+	if !ok {
+		return "", err
+	}
+
+	stmt := `INSERT INTO pastes (code, title, body,created, expires)
+	VALUES(?, ?, ?, UTC_TIMESTAMP(), ?)`
+	_, err = m.DB.Exec(stmt, code, title, body, parsedExpiry)
+	if err != nil {
+		return "", err
+	}
+
+	return code, nil
 }
 
 func (m *PasteModel) Read(code string, password string) (*Paste, error) {

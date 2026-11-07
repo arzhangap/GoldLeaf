@@ -1,10 +1,14 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"runtime/debug"
+	"strings"
 	"time"
+
+	"goldleaf.ari.github.com/internal/models"
 )
 
 func (app *application) notFound(w http.ResponseWriter) {
@@ -43,5 +47,27 @@ func (app *application) newTemplateData(r *http.Request) *templateData {
 		CurrentYear: time.Now().Year(),
 		//Flash:           app.sessionManager.PopString(r.Context(), "flash"),
 		//CSRFToken:       nosurf.Token(r),
+	}
+}
+
+func (app *application) showPaste(r *http.Request, w http.ResponseWriter, code, password string) {
+	code = strings.ToUpper(strings.TrimSpace(code))
+	if len(code) != 6 {
+		app.notFound(w)
+		return
+	}
+
+	p, err := app.pastes.Read(code, password)
+	switch {
+	case errors.Is(err, models.ErrNoRecord):
+		app.notFound(w)
+	case errors.Is(err, models.ErrPasswordRequired):
+	case errors.Is(err, models.ErrInvalidCredentials):
+	case err != nil:
+		app.serverError(w, err)
+	default:
+		data := app.newTemplateData(r)
+		data.Paste = p
+		app.render(w, http.StatusOK, "read_paste.html", data)
 	}
 }

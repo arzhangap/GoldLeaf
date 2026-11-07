@@ -10,6 +10,7 @@ import (
 type templateData struct {
 	CurrentYear int
 	Paste       *models.Paste
+	Form        any
 }
 
 func newTemplateCache() (map[string]*template.Template, error) {
