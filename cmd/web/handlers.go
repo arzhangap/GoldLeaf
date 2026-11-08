@@ -25,7 +25,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 func (app *application) createPaste(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 	data.Form = pasteForm{expires: "1h"}
-	app.render(w, http.StatusUnprocessableEntity, "create_paste.html", data)
+	app.render(w, http.StatusOK, "create_paste.html", data)
 }
 
 func (app *application) createPastePost(w http.ResponseWriter, r *http.Request) {
@@ -40,9 +40,9 @@ func (app *application) createPastePost(w http.ResponseWriter, r *http.Request) 
 	form.expires = strings.TrimSpace(r.PostForm.Get("expires"))
 
 	form.CheckField(validator.NotBlank(form.title), "title", "عنوان نمی تواند خالی باشد")
-	form.CheckField(validator.NotBlank(form.body), "body", "عنوان نمی تواند خالی باشد")
+	form.CheckField(validator.NotBlank(form.body), "body", "متن نمی تواند خالی باشد")
 	form.CheckField(validator.MaxChars(form.title, 100), "title", "عنوان بیش از حد مجاز طولانی است.")
-	form.CheckField(validator.MaxChars(form.body, 500), "body", "عنوان بیش از حد مجاز طولانی است.")
+	form.CheckField(validator.MaxChars(form.body, 500), "body", "متن بیش از حد مجاز طولانی است.")
 	form.CheckField(validator.PermittedValue(form.expires, "1h", "1d", "7d"), "expires", "تاریخ انقضا نادرست است")
 
 	if !form.Validator.Valid() {
