@@ -5,10 +5,25 @@
   <div class="vhead">
     <div>
       <h1 id="vTitle">{{if .Paste.Title}}{{.Paste.Title}}{{else}}بدون عنوان{{end}}</h1>
-      <div class="meta"> تاریخ ساخت: <span id="vAge">{{.Paste.Created.Format "2006-01-02 15:04"}}</span></div>
+      <div class="meta">تاریخ ساخت: <span id="vAge">{{.Paste.Created.Format "2006-01-02 15:04"}}</span></div>
     </div>
     <button class="btn ghost" type="button" id="copyNote">کپی متن</button>
   </div>
+
   <pre id="vBody" dir="auto">{{.Paste.Body}}</pre>
+
+  <section class="share-code">
+    <div class="share-code-card">
+      <code id="paste-code">{{.Paste.Code}}</code>
+    </div>
+
+    <p class="share-description" dir="rtl">
+      با استفاده از این کد، تخته‌تان را به اشتراک بگذارید!
+    </p>
+
+    <button class="copy-button" type="button" onclick="copyPasteCode()">
+      کپی کد
+    </button>
+  </section>
 </article>
 {{end}}

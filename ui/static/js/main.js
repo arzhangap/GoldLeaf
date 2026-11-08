@@ -15,8 +15,15 @@ if (dlg) {
   dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });
 }
 
-/* view page: copy button */
-const copyNote = $("#copyNote");
-if (copyNote) {
-  copyNote.addEventListener("click", (e) => copyText($("#vBody").textContent, e.currentTarget));
+async function copyPasteCode() {
+  const code = document.getElementById("paste-code").textContent;
+  const button = document.querySelector(".copy-button");
+
+  try {
+    await navigator.clipboard.writeText(code);
+    button.textContent = "کپی شد!";
+    setTimeout(() => button.textContent = "کپی کد", 2000);
+  } catch (err) {
+    console.error("Copy failed:", err);
+  }
 }

@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"errors"
 	"time"
+
+	"github.com/go-sql-driver/mysql"
 )
 
 var expiryOptions = map[string]time.Duration{
@@ -43,30 +45,39 @@ type PasteModel struct {
 }
 
 func (m *PasteModel) Insert(title string, body string, password string, expires string) (string, error) {
-	code, err := GenerateCode()
-	if err != nil {
-		return "", err
-	}
 	parsedExpiry, ok := parseExpires(expires)
 	if !ok {
-		return "", err
+		return "", errors.New("cannot parse expiry.")
 	}
 
-	stmt := `INSERT INTO pastes (code, title, body,created, expires)
+	for range 3 {
+		var mysqlErr *mysql.MySQLError
+		code, err := GenerateCode()
+
+		if err != nil {
+			return "", err
+		}
+
+		stmt := `INSERT INTO pastes (code, title, body,created, expires)
 	VALUES(?, ?, ?, UTC_TIMESTAMP(), ?)`
-	_, err = m.DB.Exec(stmt, code, title, body, parsedExpiry)
-	if err != nil {
-		return "", err
-	}
 
-	return code, nil
+		_, err = m.DB.Exec(stmt, code, title, body, parsedExpiry)
+		if err != nil {
+			if errors.As(err, &mysqlErr) && mysqlErr.Number == 1062 {
+				continue
+			}
+			return "", err
+		}
+		return code, nil
+	}
+	return "", errors.New("failed to generate a unique code after 3 attempts")
 }
 
 func (m *PasteModel) Read(code string, password string) (*Paste, error) {
 
 	stmt := "SELECT title, body, password_hash, created FROM pastes WHERE (expires IS NULL OR expires > UTC_TIMESTAMP()) AND code = ?"
 
-	p := &Paste{}
+	p := &Paste{Code: code}
 	err := m.DB.QueryRow(stmt, code).Scan(&p.Title, &p.Body, &p.PasswordHash, &p.Created)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -90,7 +101,6 @@ func (m *PasteModel) Read(code string, password string) (*Paste, error) {
 	//}
 
 	p.PasswordHash = sql.NullString{}
-	p.Code = "AAAAAA"
 	return p, nil
 }
 
