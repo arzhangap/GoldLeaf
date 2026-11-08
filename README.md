@@ -52,5 +52,9 @@ Run the application using its configured entry point.
 [GoldLeaf on GitHub](https://github.com/arzhangap/GoldLeaf)
 
 ## 📄 License
+## License
 
-See the repository for licensing information.
+Copyright (c) 2026 arzhangap
+
+This project is licensed under the MIT License.
+See the [LICENSE](LICENSE) file for details.
