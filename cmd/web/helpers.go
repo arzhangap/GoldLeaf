@@ -21,6 +21,7 @@ func (app *application) clientError(w http.ResponseWriter, status int) {
 
 func (app *application) serverError(w http.ResponseWriter, err error) {
 	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
+	// TODO: Replace the numeric Print argument with proper formatted or structured logging.
 	app.errorLog.Print(2, trace)
 
 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -34,6 +35,7 @@ func (app *application) render(w http.ResponseWriter, status int, page string, d
 		return
 	}
 
+	// TODO: Execute the template into a buffer first; only write the status and body after execution succeeds.
 	w.WriteHeader(status)
 
 	err := ts.ExecuteTemplate(w, "base", data)
@@ -45,6 +47,7 @@ func (app *application) render(w http.ResponseWriter, status int, page string, d
 func (app *application) newTemplateData(r *http.Request) *templateData {
 	return &templateData{
 		CurrentYear: time.Now().Year(),
+		// TODO: Add CSRF token generation here when CSRF middleware is enabled.
 		//Flash:           app.sessionManager.PopString(r.Context(), "flash"),
 		//CSRFToken:       nosurf.Token(r),
 	}
@@ -62,7 +65,9 @@ func (app *application) showPaste(r *http.Request, w http.ResponseWriter, code, 
 	case errors.Is(err, models.ErrNoRecord):
 		app.notFound(w)
 	case errors.Is(err, models.ErrPasswordRequired):
+		// TODO: Render a password-entry form and preserve the paste code.
 	case errors.Is(err, models.ErrInvalidCredentials):
+		// TODO: Re-render the password-entry form with an invalid-password message.
 	case err != nil:
 		app.serverError(w, err)
 	default:
